@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>헬스 기구 길잡이 - 전과자 팀</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top-header">
+    <div class="title-area">
+      <h1>헬스 기구 길잡이</h1>
+      <p class="subtitle">한세 헬스력 테스트 &amp; 부위별 운동 가이드</p>
+    </div>
+    <div class="team-tag">
+      <span>팀명: 전과자</span>
+      <span class="badge">Cloud Computing Mini Project</span>
+    </div>
+  </header>
+
+  <main class="main-layout">
+    <!-- 왼쪽: 인체 모형 + 클릭 가능한 부위 -->
+    <section class="body-section">
+      <h2>인체 부위 선택</h2>
+      <p class="hint">궁금한 부위를 클릭하면 해당 부위 설명과 추천 운동이 오른쪽에 나옵니다.</p>
+
+      <div class="body-wrapper">
+        <!-- 실제 프로젝트에서는 이 이미지를 교체해도 됨 -->
+        <div class="body-placeholder">
+          <!-- 그냥 SVG 형태의 단순 실루엣 느낌 -->
+          <div class="body-head"></div>
+          <div class="body-torso"></div>
+          <div class="body-arms"></div>
+          <div class="body-legs"></div>
+
+          <!-- 클릭 가능한 핫스팟 버튼들 -->
+          <button class="hotspot hotspot-shoulder" data-part="shoulder" title="어깨"></button>
+          <button class="hotspot hotspot-chest" data-part="chest" title="가슴"></button>
+          <button class="hotspot hotspot-back" data-part="back" title="등"></button>
+          <button class="hotspot hotspot-abs" data-part="abs" title="복근"></button>
+          <button class="hotspot hotspot-legs" data-part="legs" title="하체"></button>
+        </div>
+
+        <ul class="body-part-list">
+          <li data-part="shoulder" class="body-part-item">어깨</li>
+          <li data-part="chest" class="body-part-item">가슴</li>
+          <li data-part="back" class="body-part-item">등</li>
+          <li data-part="abs" class="body-part-item">복근</li>
+          <li data-part="legs" class="body-part-item">하체</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 가운데: 선택된 부위 상세 정보 -->
+    <section class="info-section">
+      <h2>부위별 설명 &amp; 추천 운동</h2>
+      <div id="part-info" class="part-info empty">
+        <p class="empty-text">왼쪽 인체에서 부위를 클릭해 주세요.</p>
+      </div>
+    </section>
+
+    <!-- 오른쪽: 한세헬스 순위 + 헬스력 테스트 -->
+    <section class="side-section">
+      <div class="ranking-box">
+        <h2>한세헬스 순위 (샘플)</h2>
+        <ol class="ranking-list">
+          <li><span class="rank">1위</span> 익1 (92점)</li>
+          <li><span class="rank">2위</span> 익2 (88점)</li>
+          <li><span class="rank">3위</span> 익3 (81점)</li>
+          <li><span class="rank">4위</span> 익4 (76점)</li>
+          <li><span class="rank">5위</span> 익5 (73점)</li>
+        </ol>
+        <p class="ranking-note">※ 현재는 샘플 데이터입니다. 최종 버전에서는 AWS Lambda + DynamoDB에서 불러올 예정입니다.</p>
+      </div>
+
+      <div class="fitness-box">
+        <h2>내 헬스력 측정하기</h2>
+        <form id="fitness-form" class="fitness-form">
+          <label>
+            주당 운동 횟수 (일)
+            <input type="number" name="weeklyWorkouts" min="0" max="7" placeholder="예: 3" required />
+          </label>
+          <label>
+            스쿼트 최대 연속 횟수 (기준 체중)
+            <input type="number" name="squatReps" min="0" placeholder="예: 20" required />
+          </label>
+          <label>
+            푸시업 최대 연속 횟수
+            <input type="number" name="pushupReps" min="0" placeholder="예: 15" required />
+          </label>
+          <label>
+            플랭크 유지 시간 (초)
+            <input type="number" name="plankSeconds" min="0" placeholder="예: 60" required />
+          </label>
+          <label>
+            유산소 운동 시간 (1회 평균, 분)
+            <input type="number" name="cardioMinutes" min="0" placeholder="예: 20" required />
+          </label>
+
+          <button type="submit" class="primary-button">헬스력 점수 계산</button>
+        </form>
+
+        <div id="fitness-result" class="fitness-result">
+          <p>아직 헬스력 점수를 계산하지 않았어요.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <p>Cloud Computing Mini Project · 팀 전과자</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
