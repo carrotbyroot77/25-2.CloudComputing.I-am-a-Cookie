@@ -101,6 +101,7 @@
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false"> <span class="sr-only">내비게이션 토글</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
           <a class="navbar-brand page-scroll" href="#main"><img src="{{ url_for('static', filename='images/logo.png') }}" width="80" height="30" alt="iLand" /></a> 
         </div>
+        
         <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
             <li><a class="page-scroll" href="#main">홈</a></li>
@@ -108,7 +109,12 @@
             <li><a class="page-scroll" href="#features">부위별 가이드</a></li>
             <li><a class="page-scroll" href="#review">한세 랭킹</a></li>
             <li><a class="page-scroll" href="#pricing">헬스력 측정</a></li>
-            <li><a class="page-scroll" href="#login">로그인</a></li>
+            
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('logout') }}" style="color: #ff6b6b; font-weight: bold;">로그아웃</a></li>
+            {% else %}
+                <li><a class="page-scroll" href="#login">로그인</a></li>
+            {% endif %}
           </ul>
         </div>
       </div>
@@ -317,28 +323,44 @@
     <div class="cta-sub no-color" id="login">
       <div class="container">
         <div class="cta-inner">
-          <h1 class="wow fadeInUp" data-wow-delay="0s">오-운-한 로그인</h1>
-          <p class="wow fadeInUp" data-wow-delay="0.2s"> 로그인하고 당신의 헬스력을 서버에 저장하세요.<br class="hidden-xs">한세대학교 학번으로 간편하게 이용할 수 있습니다. </p>
-          <div class="col-md-6 col-md-offset-3" style="margin-top: 30px;">
-            <div class="form wow fadeInUp" data-wow-delay="0.3s" style="background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); color: #333;">
-                
-                <form class="login-form center-form" action="{{ url_for('login') }}" method="POST">
-                    <div class="form-group">
-                        <input type="text" name="student_id" class="form-control input-lg" placeholder="학번 (예: 20240001)" required style="border-radius: 5px; margin-bottom: 15px; height: 50px;">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name="password" class="form-control input-lg" placeholder="비밀번호" required style="border-radius: 5px; margin-bottom: 20px; height: 50px;">
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-action btn-fill btn-lg" style="width: 100%; font-size: 18px; font-weight: bold; height: 50px;">로그인</button>
-                    
-                    <div style="margin-top: 20px; color: #666; font-size: 14px;">
-                        <a href="#" data-toggle="modal" data-target="#registerModal" style="color: #666; text-decoration: underline; cursor: pointer;">회원가입</a> &nbsp;|&nbsp; 
-                        <a href="#" data-toggle="modal" data-target="#resetPasswordModal" style="color: #666; text-decoration: underline; cursor: pointer;">비밀번호 찾기</a>
-                    </div>
-                </form>
+          
+          {% if current_user.is_authenticated %}
+              <h1 class="wow fadeInUp" data-wow-delay="0s">환영합니다, {{ current_user.name }}님!</h1>
+              <p class="wow fadeInUp" data-wow-delay="0.2s">
+                  오늘도 오-운-한과 함께 득근하세요! 💪<br>
+                  (학번: {{ current_user.student_id }})
+              </p>
+              <div class="col-md-6 col-md-offset-3" style="margin-top: 30px;">
+                  <a href="{{ url_for('logout') }}" class="btn btn-primary btn-action btn-fill btn-lg wow fadeInUp" data-wow-delay="0.3s" style="background-color: #ff4757; border: none; width: 100%;">
+                      로그아웃 하기
+                  </a>
+              </div>
 
-            </div>
-          </div>
+          {% else %}
+              <h1 class="wow fadeInUp" data-wow-delay="0s">오-운-한 로그인</h1>
+              <p class="wow fadeInUp" data-wow-delay="0.2s"> 로그인하고 당신의 헬스력을 서버에 저장하세요.<br class="hidden-xs">한세대학교 학번으로 간편하게 이용할 수 있습니다. </p>
+              <div class="col-md-6 col-md-offset-3" style="margin-top: 30px;">
+                <div class="form wow fadeInUp" data-wow-delay="0.3s" style="background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); color: #333;">
+                    
+                    <form class="login-form center-form" action="{{ url_for('login') }}" method="POST">
+                        <div class="form-group">
+                            <input type="text" name="student_id" class="form-control input-lg" placeholder="학번 (예: 20240001)" required style="border-radius: 5px; margin-bottom: 15px; height: 50px;">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="password" class="form-control input-lg" placeholder="비밀번호" required style="border-radius: 5px; margin-bottom: 20px; height: 50px;">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-action btn-fill btn-lg" style="width: 100%; font-size: 18px; font-weight: bold; height: 50px;">로그인</button>
+                        
+                        <div style="margin-top: 20px; color: #666; font-size: 14px;">
+                            <a href="#" data-toggle="modal" data-target="#registerModal" style="color: #666; text-decoration: underline; cursor: pointer;">회원가입</a> &nbsp;|&nbsp; 
+                            <a href="#" data-toggle="modal" data-target="#resetPasswordModal" style="color: #666; text-decoration: underline; cursor: pointer;">비밀번호 찾기</a>
+                        </div>
+                    </form>
+
+                </div>
+              </div>
+          {% endif %}
+          
         </div>
       </div>
     </div>
