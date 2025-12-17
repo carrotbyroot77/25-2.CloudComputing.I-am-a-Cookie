@@ -1,13 +1,13 @@
 from models import db, User, create_user
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import db, User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_1234'
 
-bcrypt = Bcrypt(app)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'home'
@@ -37,7 +37,7 @@ def register():
         flash('이미 가입된 학번입니다.', 'danger')
         return redirect(url_for('home'))
     
-    hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
+    hashed_pw = generate_password_hash(password)   # <- 변경
     new_user = create_user(
     student_id=student_id,
     password_hash=hashed_pw,
@@ -57,15 +57,15 @@ def register():
 def login():
     student_id = request.form['student_id']
     password = request.form['password']
-    
+
     user = User.query.filter_by(student_id=student_id).first()
-    
-    if user and bcrypt.check_password_hash(user.password_hash, password):
+
+    if user and check_password_hash(user.password_hash, password):
         login_user(user)
         flash(f'환영합니다, {user.name}님!', 'success')
     else:
         flash('학번 또는 비밀번호가 틀렸습니다.', 'danger')
-        
+
     return redirect(url_for('home'))
 
 # 4. 로그아웃
@@ -100,7 +100,7 @@ def reset_password():
     user = User.query.filter_by(student_id=student_id).first()
     
     if user and user.security_answer == answer:
-        hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        hashed_pw = generate_password_hash(new_password) 
         user.password_hash = hashed_pw
         db.session.commit()
         flash('비밀번호가 변경되었습니다. 로그인해주세요.', 'success')
