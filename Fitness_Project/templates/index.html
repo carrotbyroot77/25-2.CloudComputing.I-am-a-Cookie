@@ -261,25 +261,42 @@
     <div class="review-section" id="review">
       <div class="container">
         <div class="col-md-10 col-md-offset-1">
+          <h1 class="text-center wow fadeInDown" style="color: #fff; margin-bottom: 30px;">🏆 한세 헬스력 랭킹 TOP 5</h1>
+          
           <div class="reviews owl-carousel owl-theme">
-            <div class="review-single"><img class="img-circle" src="{{ url_for('static', filename='images/customer1.png') }}" alt="User" />
-              <div class="review-text wow fadeInUp" data-wow-delay="0.2s">
-                <p>열심히 하다보니 1등이네요. 여러분들도 하실 수 있어요.</p>
-                <h3>이달의 1등 : 서희우</h3>
-              </div>
-            </div>
-            <div class="review-single"><img class="img-circle" src="{{ url_for('static', filename='images/customer2.png') }}" alt="User" />
-              <div class="review-text">
-                <p>어느새 2등까지 왔습니다. 오-운-한 최고!</p>
-                <h3>이달의 2등 : 이건희</h3>
-              </div>
-            </div>
-            <div class="review-single"><img class="img-circle" src="{{ url_for('static', filename='images/customer3.png') }}" alt="User" />
-              <div class="review-text">
-                <p>다음 달에는 1등을 향해 운동할 거예요!</p>
-                <h3>이달의 3등 : 정원영</h3>
-              </div>
-            </div>
+            
+            {% if top_users %}
+                {% for user in top_users %}
+                <div class="review-single">
+                  <img class="img-circle" src="{{ url_for('static', filename='images/customer' + (loop.index if loop.index <= 3 else 1)|string + '.png') }}" alt="User" />
+                  
+                  <div class="review-text wow fadeInUp" data-wow-delay="0.2s">
+                    <p>
+                        {% if loop.index == 1 %}
+                            "열심히 하다보니 1등이네요. 여러분들도 하실 수 있어요."
+                        {% elif loop.index == 2 %}
+                            "어느새 2등까지 왔습니다. 오-운-한 최고!"
+                        {% elif loop.index == 3 %}
+                            "다음 달에는 1등을 향해 운동할 거예요!"
+                        {% else %}
+                            "꾸준히 하다보니 순위권이네요! 모두 득근하세요!"
+                        {% endif %}
+                    </p>
+                    
+                    <h3 style="color: #f8e71c;">{{ loop.index }}위 : {{ user.name }}</h3>
+                    <h4 style="color: #fff; margin-top:5px;">(헬스력: {{ user.fitness_score }} HP)</h4>
+                  </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="review-single">
+                    <div class="review-text">
+                        <p>아직 등록된 랭커가 없습니다.<br>지금 바로 측정하고 1등의 주인공이 되세요!</p>
+                        <h3>랭킹 도전 대기중...</h3>
+                    </div>
+                </div>
+            {% endif %}
+
           </div>
         </div>
       </div>
@@ -516,14 +533,13 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.subscribe.js') }}"></script>
 
 <script>
-  // [추가됨] 비밀번호 찾기 (본인 확인) 기능
+  // 1. 비밀번호 찾기 (본인 확인) 기능
   function verifyUser() {
       var sid = $('#check_student_id').val();
       var nm = $('#check_name').val();
       
       if(!sid || !nm) { alert("학번과 이름을 모두 입력해주세요."); return; }
 
-      // 서버로 데이터 전송 (AJAX)
       $.ajax({
           type: "POST",
           url: "/check_user_for_reset",
@@ -531,30 +547,31 @@
           data: JSON.stringify({ student_id: sid, name: nm }),
           success: function(response) {
               if (response.status === 'success') {
-                  // 확인 성공! 2단계 화면 보여주기
                   $('#resetStep1').slideUp(); 
                   $('#resetStep2').slideDown(); 
-                  $('#questionText').text(response.question); // 질문 표시
-                  $('#hidden_student_id').val(sid); // 학번 전달
+                  $('#questionText').text(response.question); 
+                  $('#hidden_student_id').val(sid); 
               } else {
                   alert(response.message);
               }
           },
-          error: function() {
-              alert("서버 통신 오류입니다.");
-          }
+          error: function() { alert("서버 통신 오류입니다."); }
       });
   }
 
-  // 기존 헬스력 계산기 로직
+  // 2. [복구됨] 헬스력 계산 및 서버 전송 로직
   $(document).ready(function() {
       $('.btn-primary.btn-action.btn-fill.btn-lg').click(function() {
           var weightTime = parseInt($('#weightTime').val()) || 0;
           var cardioTime = parseInt($('#cardioTime').val()) || 0;
+          
+          // 점수 계산
           var totalScore = (weightTime * 10) + (cardioTime * 10);
+          
           var message = "";
           var messageColor = "#aaa";
 
+          // 멘트 설정
           if (totalScore >= 3000) {
               message = "하루에 이정도 운동을..? 솔직히 말해요, 숨쉬기 운동 포함이죠? 뻥튀기 금지! 🚨";
               messageColor = "#000000"; 
@@ -574,10 +591,33 @@
               message = "시작이 반입니다! 헬린이 탈출을 향해 고고! 🐣";
               messageColor = "#747d8c"; 
           }
+          
+          // 화면에 점수 표시
           $('.result-display h1').html(totalScore + ' <span style="font-size: 30px; color: #f8e71c;">HP</span>');
           $('.result-display p').text(message).css('color', messageColor).css('font-weight', 'bold');
+
+          // [핵심] 로그인 상태라면 서버로 점수 전송 (이 부분이 빠져있었습니다!)
+          {% if current_user.is_authenticated %}
+            $.ajax({
+                type: "POST",
+                url: "/submit_score",
+                contentType: "application/json",
+                data: JSON.stringify({ score: totalScore }),
+                success: function(response) {
+                    if (confirm("당신의 헬스력(" + totalScore + "점)이 기록되었습니다! \n랭킹을 확인하시겠습니까?")) {
+                        location.reload(); 
+                    }
+                },
+                error: function() {
+                    // 스크린샷의 에러가 뜬다면 DB 문제일 확률이 높습니다.
+                    alert("점수 저장 실패. 잠시 후 다시 시도해주세요.");
+                }
+            });
+          {% else %}
+            alert("로그인하면 이 점수가 랭킹에 등록됩니다!");
+          {% endif %}
       });
   });
-</script>
+</script>ㄴ
 </body>
 </html>
