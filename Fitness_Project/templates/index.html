@@ -327,9 +327,30 @@
                     <button type="button" class="btn btn-primary btn-action btn-fill btn-lg" style="margin-top: 30px; width: 100%; font-size: 20px;">헬스력 계산하기</button>
                 </form>
                 <div class="result-display" style="margin-top: 40px; padding-top: 30px; border-top: 2px dashed #eee;">
-                    <h3 style="color: #888; margin-bottom: 10px;">당신의 오늘 헬스력은?</h3>
-                    <h1 style="font-size: 60px; font-weight: 900; color: #222; letter-spacing: -2px;">0 <span style="font-size: 30px; color: #f8e71c;">HP</span></h1>
-                    <p style="color: #aaa; font-size: 14px;">(운동 시간을 입력하고 버튼을 눌러보세요)</p>
+                    <h3 style="color: #888; margin-bottom: 10px;">
+                        {% if current_user.is_authenticated %}
+                            {{ current_user.name }}님의 현재 헬스력
+                        {% else %}
+                            당신의 오늘 헬스력은?
+                        {% endif %}
+                    </h3>
+
+                    <h1 style="font-size: 60px; font-weight: 900; color: #222; letter-spacing: -2px;">
+                        {% if current_user.is_authenticated %}
+                            {{ current_user.fitness_score }}
+                        {% else %}
+                            0
+                        {% endif %}
+                        <span style="font-size: 30px; color: #f8e71c;">HP</span>
+                    </h1>
+
+                    <p style="color: #aaa; font-size: 14px;">
+                        {% if current_user.is_authenticated %}
+                            (오늘 운동을 마쳤다면 다시 입력해서 기록을 갱신하세요!)
+                        {% else %}
+                            (운동 시간을 입력하고 버튼을 눌러보세요)
+                        {% endif %}
+                    </p>
                 </div>
             </div>
           </div>
