@@ -1,4 +1,4 @@
-import os  # [필수] 운영체제 기능 사용
+from models import db, User, create_user
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -7,12 +7,6 @@ from models import db, User
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_1234'
 
-# [수정됨] 데이터베이스 경로를 '절대 경로'로 설정 (서버에서 파일 위치 못 찾는 문제 해결)
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db.init_app(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -22,9 +16,6 @@ login_manager.login_view = 'home'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# 앱 시작 시 DB 생성
-with app.app_context():
-    db.create_all()
 
 # 1. 메인 페이지 (랭킹 표시)
 @app.route('/')
@@ -47,15 +38,16 @@ def register():
         return redirect(url_for('home'))
     
     hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(
-        student_id=student_id, 
-        password_hash=hashed_pw, 
-        name=name,
-        security_question=question,
-        security_answer=answer
+    new_user = create_user(
+    student_id=student_id,
+    password_hash=hashed_pw,
+    name=name,
+    security_question=question,
+    security_answer=answer
     )
     db.session.add(new_user)
     db.session.commit()
+
     
     flash('회원가입 성공! 로그인해주세요.', 'success')
     return redirect(url_for('home'))
