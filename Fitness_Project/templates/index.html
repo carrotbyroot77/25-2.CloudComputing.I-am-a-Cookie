@@ -324,7 +324,7 @@
                             <input type="number" class="form-control input-lg" id="cardioTime" placeholder="예: 30 (분 단위 입력)" style="border-radius: 5px;">
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary btn-action btn-fill btn-lg" style="margin-top: 30px; width: 100%; font-size: 20px;">헬스력 계산하기</button>
+                    <button type="button" id="calcButton" class="btn btn-primary btn-action btn-fill btn-lg" style="margin-top: 30px; width: 100%; font-size: 20px;">헬스력 계산하기</button>
                 </form>
                 <div class="result-display" style="margin-top: 40px; padding-top: 30px; border-top: 2px dashed #eee;">
                     <h3 style="color: #888; margin-bottom: 10px;">
@@ -580,19 +580,18 @@
       });
   }
 
-  // 2. [복구됨] 헬스력 계산 및 서버 전송 로직
+  // 2. 헬스력 계산 및 서버 전송 로직
   $(document).ready(function() {
-      $('.btn-primary.btn-action.btn-fill.btn-lg').click(function() {
+      // [수정됨] 이제 class가 아니라 id="calcButton"인 버튼만 작동합니다!
+      $('#calcButton').click(function() {
           var weightTime = parseInt($('#weightTime').val()) || 0;
           var cardioTime = parseInt($('#cardioTime').val()) || 0;
           
-          // 점수 계산
           var totalScore = (weightTime * 10) + (cardioTime * 10);
           
           var message = "";
           var messageColor = "#aaa";
 
-          // 멘트 설정
           if (totalScore >= 3000) {
               message = "하루에 이정도 운동을..? 솔직히 말해요, 숨쉬기 운동 포함이죠? 뻥튀기 금지! 🚨";
               messageColor = "#000000"; 
@@ -613,11 +612,9 @@
               messageColor = "#747d8c"; 
           }
           
-          // 화면에 점수 표시
           $('.result-display h1').html(totalScore + ' <span style="font-size: 30px; color: #f8e71c;">HP</span>');
           $('.result-display p').text(message).css('color', messageColor).css('font-weight', 'bold');
 
-          // [핵심] 로그인 상태라면 서버로 점수 전송 (이 부분이 빠져있었습니다!)
           {% if current_user.is_authenticated %}
             $.ajax({
                 type: "POST",
@@ -630,7 +627,6 @@
                     }
                 },
                 error: function() {
-                    // 스크린샷의 에러가 뜬다면 DB 문제일 확률이 높습니다.
                     alert("점수 저장 실패. 잠시 후 다시 시도해주세요.");
                 }
             });
@@ -639,6 +635,6 @@
           {% endif %}
       });
   });
-</script>ㄴ
+</script>
 </body>
 </html>
